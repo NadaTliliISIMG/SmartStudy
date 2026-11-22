@@ -1,14 +1,15 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import MainLayout from './components/layout/MainLayout';
-import LoginPlaceholder from './pages/LoginPlaceholder';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import PlaceholderPage from './pages/PlaceholderPage';
 
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPlaceholder />} />
-      <Route path="/register" element={<PlaceholderPage title="Inscription" day={2} />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<PlaceholderPage title="Tableau de bord" day={5} />} />
