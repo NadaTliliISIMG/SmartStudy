@@ -1,4 +1,5 @@
 from typing import List
+
 from pydantic import BaseModel, Field, field_validator
 
 
@@ -24,7 +25,7 @@ class QuizQuestion(BaseModel):
     @classmethod
     def four_options(cls, v):
         if len(v) != 4:
-            raise ValueError("Une question doit avoir exactement 4 options")
+            raise ValueError("A question must have exactly 4 options")
         return v
 
 
