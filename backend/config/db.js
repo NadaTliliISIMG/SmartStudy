@@ -4,9 +4,9 @@ const { mongoUri } = require('./env');
 const connectDB = async () => {
   try {
     await mongoose.connect(mongoUri);
-    console.log('MongoDB connecté');
+    console.log('MongoDB connected');
   } catch (err) {
-    console.error('Erreur de connexion MongoDB :', err.message);
+    console.error('MongoDB connection error:', err.message);
     process.exit(1);
   }
 };

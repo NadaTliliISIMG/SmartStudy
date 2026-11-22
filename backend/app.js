@@ -9,10 +9,10 @@ const app = express();
 
 app.use(cors({ origin: corsOrigin }));
 app.use(express.json({ limit: '2mb' }));
-app.use(morgan('dev'));
+if (process.env.NODE_ENV !== 'test') app.use(morgan('dev'));
 
 app.use('/api/health', healthRoutes);
-// Routes à ajouter en Phase 3 : auth, courses, summaries, quizzes, dashboard
+
 
 app.use(notFound);
 app.use(errorHandler);

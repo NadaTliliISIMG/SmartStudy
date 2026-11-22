@@ -1,10 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const initialState = { items: [], loading: false, error: null };
-
 const quizzesSlice = createSlice({
   name: 'quizzes',
-  initialState,
+  initialState: { items: [], current: null, lastResult: null, results: [], generating: false, loading: false, error: null },
   reducers: {},
 });
 

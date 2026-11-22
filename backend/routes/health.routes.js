@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 
 const router = express.Router();
 
-// GET /api/health : utilisé par Docker (healthcheck), Jenkins et Nagios
+// GET /api/health: used by Docker healthchecks, Jenkins and Nagios
 router.get('/', (req, res) => {
   const dbState = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
   const healthy = dbState === 'connected';
