@@ -1,4 +1,6 @@
-require('dotenv').config();
+const path = require('path');
+// Reads the shared .env at the repository root (ignored silently if absent, e.g. in Docker)
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
