@@ -3,6 +3,7 @@ const { body } = require('express-validator');
 const validate = require('../middleware/validate');
 const { protect } = require('../middleware/auth');
 const course = require('../controllers/courseController');
+const summary = require('../controllers/summaryController');
 
 const router = express.Router();
 
@@ -24,5 +25,10 @@ router
   .get(course.getOne)
   .put(courseRules, validate, course.update)
   .delete(course.remove);
+  
+router.post('/:id/summary', summary.generate);
+router.get('/:id/summaries', summary.listByCourse);
+
+// Day 5: POST /:id/quiz, GET /:id/quizzes
 
 module.exports = router;
