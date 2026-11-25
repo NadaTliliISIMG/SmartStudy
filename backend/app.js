@@ -15,6 +15,8 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/courses', require('./routes/course.routes'));
 app.use('/api/summaries', require('./routes/summary.routes'));
+app.use('/api/quizzes', require('./routes/quiz.routes'));
+app.use('/api/results', require('./routes/result.routes'));
 
 app.use(notFound);
 app.use(errorHandler);
