@@ -29,6 +29,27 @@ const summarize = async (courseContent) => {
   return data.summary;
 };
 
+// The backend does not blindly trust the AI service: every question is re-validated
+const isValidQuestion = (q) =>
+  Boolean(
+    q &&
+      typeof q.question === 'string' &&
+      q.question.trim() &&
+      Array.isArray(q.options) &&
+      q.options.length === 4 &&
+      q.options.every((o) => typeof o === 'string' && o.trim()) &&
+      new Set(q.options).size === 4 &&
+      typeof q.correctAnswer === 'string' &&
+      q.options.includes(q.correctAnswer)
+  );
 
+const generateQuiz = async (courseContent, numberOfQuestions) => {
+  const data = await call('/api/ai/generate-quiz', { courseContent, numberOfQuestions });
+  const questions = Array.isArray(data && data.questions) ? data.questions.filter(isValidQuestion) : [];
+  if (questions.length === 0) {
+    throw new ApiError(502, 'Invalid answer from the AI service (quiz)');
+  }
+  return questions.map(({ question, options, correctAnswer }) => ({ question, options, correctAnswer }));
+};
 
-module.exports = { summarize };
+module.exports = { summarize, generateQuiz };
