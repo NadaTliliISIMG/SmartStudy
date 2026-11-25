@@ -13,6 +13,7 @@ if (process.env.NODE_ENV !== 'test') app.use(morgan('dev'));
 
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/courses', require('./routes/course.routes'));
 
 app.use(notFound);
 app.use(errorHandler);
