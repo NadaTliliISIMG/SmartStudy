@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Row, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaPlus } from 'react-icons/fa';
+import { FaPlus, FaBookOpen } from 'react-icons/fa';
 import { fetchCourses, deleteCourse, clearCourseError } from '../features/courses/coursesSlice';
 import PageHeader from '../components/common/PageHeader';
 import CourseCard from '../components/courses/CourseCard';
@@ -31,11 +31,13 @@ export default function CoursesPage() {
       {loading && !items.length ? (
         <Loader />
       ) : items.length === 0 ? (
-        <div className="text-center text-muted py-5">
-          Aucun cours. Ajoutez votre premier cours pour pouvoir générer un résumé ou un quiz.
+        <div className="empty-state">
+          <span className="icon-tile icon-tile-lg"><FaBookOpen /></span>
+          <div className="fw-semibold text-dark mb-1">Aucun cours pour le moment</div>
+          <div>Aucun cours. Ajoutez votre premier cours pour pouvoir générer un résumé ou un quiz.</div>
         </div>
       ) : (
-        <Row className="g-3">
+        <Row className="g-4">
           {items.map((c) => (
             <Col key={c._id} md={6} xl={4}>
               <CourseCard course={c} onDelete={setToDelete} />

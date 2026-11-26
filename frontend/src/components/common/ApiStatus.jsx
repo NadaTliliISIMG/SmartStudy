@@ -12,5 +12,5 @@ export default function ApiStatus() {
   }, []);
 
   const variant = { checking: 'secondary', ok: 'success', degraded: 'warning', down: 'danger' }[status];
-  return <Badge bg={variant}>API : {status}</Badge>;
+  return <Badge bg={variant} pill className="px-3 py-2">API : {status}</Badge>;
 }
