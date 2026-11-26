@@ -1,4 +1,5 @@
 import { FaGraduationCap, FaMagic, FaQuestionCircle, FaChartLine } from 'react-icons/fa';
+import ThemeToggle from '../common/ThemeToggle';
 
 // Enveloppe visuelle des pages Login / Register (aucune logique)
 export default function AuthShell({ title, subtitle, children, footer }) {
@@ -16,6 +17,7 @@ export default function AuthShell({ title, subtitle, children, footer }) {
           </ul>
         </aside>
         <section className="auth-main">
+        <ThemeToggle className="auth-theme-toggle" />
           <div className="mb-4">
             <div className="brand-tile d-md-none mb-3"><FaGraduationCap /></div>
             <h1 className="h3 mb-1">{title}</h1>
