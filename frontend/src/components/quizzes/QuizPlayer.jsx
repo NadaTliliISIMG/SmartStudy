@@ -15,26 +15,27 @@ export default function QuizPlayer({ quiz, submitting, onSubmit }) {
 
   return (
     <Card className="shadow-sm border-0">
-      <Card.Body>
-        <div className="d-flex justify-content-between text-muted small mb-2">
+      <Card.Body className="p-4 p-md-5">
+        <div className="d-flex justify-content-between text-muted small fw-semibold mb-2">
           <span>Question {index + 1} / {total}</span>
           <span>{answered} répondue(s)</span>
         </div>
-        <ProgressBar now={((index + 1) / total) * 100} className="mb-4" style={{ height: 6 }} />
-        <h5 className="mb-3">{q.question}</h5>
-        <ListGroup className="mb-4">
-          {q.options.map((opt) => (
+        <ProgressBar now={((index + 1) / total) * 100} className="mb-4" />
+        <h5 className="quiz-question mb-4">{q.question}</h5>
+        <ListGroup className="quiz-options mb-4">
+          {q.options.map((opt, i) => (
             <ListGroup.Item
               action
               key={opt}
               active={selected[index] === opt}
               onClick={() => setSelected({ ...selected, [index]: opt })}
             >
-              {opt}
+              <span className="option-letter">{String.fromCharCode(65 + i)}</span>
+              <span>{opt}</span>
             </ListGroup.Item>
           ))}
         </ListGroup>
-        <div className="d-flex justify-content-between">
+        <div className="d-flex justify-content-between gap-2">
           <Button variant="outline-secondary" disabled={index === 0} onClick={() => setIndex(index - 1)}>
             <FaChevronLeft className="me-1" />Précédente
           </Button>

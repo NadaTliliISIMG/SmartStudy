@@ -44,9 +44,9 @@ export default function CourseForm({ initial = {}, submitLabel, loading, onSubmi
         <Form.Control.Feedback type="invalid">Collez au moins 50 caractères de cours.</Form.Control.Feedback>
         <Form.Text className="text-muted">{form.content.length} / 50000 caractères</Form.Text>
       </Form.Group>
-      <div className="d-flex gap-2">
-        <Button type="submit" disabled={loading}>{loading ? 'Enregistrement...' : submitLabel}</Button>
-        <Button variant="outline-secondary" onClick={onCancel}>Annuler</Button>
+      <div className="d-flex flex-wrap gap-2 mt-4">
+        <Button type="submit" size="lg" disabled={loading}>{loading ? 'Enregistrement...' : submitLabel}</Button>
+        <Button variant="outline-secondary" size="lg" onClick={onCancel}>Annuler</Button>
       </div>
     </Form>
   );
