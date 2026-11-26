@@ -7,11 +7,13 @@ export default function QuizReview({ quiz, result }) {
 
   return (
     <>
-      <Card className="shadow-sm border-0 mb-4 text-center">
-        <Card.Body>
-          <div className="text-muted">Votre score</div>
-          <div className="display-4 fw-bold">{result.score} / {result.totalQuestions}</div>
-          <Badge bg={percent >= 50 ? 'success' : 'danger'}>{percent} %</Badge>
+      <Card className="score-card shadow-sm border-0 mb-4 text-center">
+        <Card.Body className="py-5">
+          <div className="text-muted fw-semibold mb-3">Votre score</div>
+          <div className={`score-ring ${percent >= 50 ? 'is-good' : 'is-bad'}`} style={{ '--pct': percent }}>
+            <span>{result.score} / {result.totalQuestions}</span>
+          </div>
+          <Badge bg={percent >= 50 ? 'success' : 'danger'} pill className="px-3 py-2 fs-6">{percent} %</Badge>
         </Card.Body>
       </Card>
 
@@ -19,14 +21,14 @@ export default function QuizReview({ quiz, result }) {
         const a = result.answers.find((x) => x.questionIndex === i) || {};
         return (
           <Card key={i} className="shadow-sm border-0 mb-3">
-            <Card.Body>
-              <h6>
+            <Card.Body className="p-4">
+              <h6 className="d-flex align-items-start mb-3">
                 {a.isCorrect
-                  ? <FaCheckCircle className="text-success me-2" />
-                  : <FaTimesCircle className="text-danger me-2" />}
-                {i + 1}. {q.question}
+                  ? <FaCheckCircle className="text-success me-2 mt-1 flex-shrink-0" />
+                  : <FaTimesCircle className="text-danger me-2 mt-1 flex-shrink-0" />}
+                <span>{i + 1}. {q.question}</span>
               </h6>
-              <ListGroup variant="flush">
+              <ListGroup variant="flush" className="review-list">
                 {q.options.map((opt) => {
                   let variant;
                   if (opt === q.correctAnswer) variant = 'success';

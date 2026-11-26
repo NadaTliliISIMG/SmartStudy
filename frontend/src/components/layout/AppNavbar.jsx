@@ -17,9 +17,9 @@ export default function AppNavbar() {
 
   return (
     <Navbar bg="white" expand="md" className="border-bottom shadow-sm" sticky="top">
-      <Container fluid>
+      <Container fluid className="px-3 px-md-4">
         <Navbar.Brand as={NavLink} to="/dashboard" className="fw-bold text-primary">
-          <FaGraduationCap className="me-2" />Smart Study
+          <span className="brand-tile"><FaGraduationCap /></span>Smart Study
         </Navbar.Brand>
         <Navbar.Toggle aria-controls="main-nav" />
         <Navbar.Collapse id="main-nav" className="justify-content-end">
@@ -28,7 +28,10 @@ export default function AppNavbar() {
               <Nav.Link as={NavLink} key={to} to={to}>{label}</Nav.Link>
             ))}
           </Nav>
-          <span className="text-muted me-3">{user?.name}</span>
+          <span className="user-chip">
+            <span className="user-avatar">{user?.name?.charAt(0)}</span>
+            <span className="user-name">{user?.name}</span>
+          </span>
           <Button variant="outline-secondary" size="sm" onClick={handleLogout}>
             <FaSignOutAlt className="me-1" />Déconnexion
           </Button>

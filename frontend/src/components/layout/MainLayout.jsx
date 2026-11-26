@@ -12,7 +12,7 @@ export default function MainLayout() {
           <Sidebar />
         </aside>
         <main className="flex-grow-1 bg-light app-main">
-          <Container fluid className="p-4">
+          <Container fluid className="p-3 p-md-4 p-xl-5">
             <Outlet />
           </Container>
         </main>
