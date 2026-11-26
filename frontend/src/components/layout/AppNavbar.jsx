@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FaGraduationCap, FaSignOutAlt } from 'react-icons/fa';
 import { logout } from '../../features/auth/authSlice';
 import { navItems } from './navItems';
+import ThemeToggle from '../common/ThemeToggle';
 
 export default function AppNavbar() {
   const dispatch = useDispatch();
@@ -32,6 +33,7 @@ export default function AppNavbar() {
             <span className="user-avatar">{user?.name?.charAt(0)}</span>
             <span className="user-name">{user?.name}</span>
           </span>
+          <ThemeToggle className="me-2" />
           <Button variant="outline-secondary" size="sm" onClick={handleLogout}>
             <FaSignOutAlt className="me-1" />Déconnexion
           </Button>
