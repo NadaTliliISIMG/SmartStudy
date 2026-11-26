@@ -34,8 +34,8 @@ export default function CourseFormPage() {
     <>
       <PageHeader title={isEdit ? 'Modifier le cours' : 'Nouveau cours'} />
       <ErrorAlert message={error} />
-      <Card className="shadow-sm border-0">
-        <Card.Body>
+      <Card className="border-0" style={{ maxWidth: 860 }}>
+        <Card.Body className="p-4">
           <CourseForm
             key={isEdit ? current._id : 'new'}
             initial={isEdit ? current : {}}

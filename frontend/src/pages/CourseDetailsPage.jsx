@@ -44,8 +44,8 @@ export default function CourseDetailsPage() {
         <Button as={Link} to={`/courses/${id}/edit`} variant="outline-secondary"><FaEdit className="me-1" />Modifier</Button>
       </PageHeader>
 
-      <Card className="shadow-sm border-0 mb-4">
-        <Card.Body>
+      <Card className="ai-panel border-0 mb-4">
+        <Card.Body className="p-4">
           <div className="d-flex flex-wrap gap-3 align-items-center">
             <Button disabled={busy} onClick={() => dispatch(generateSummary(id))}>
               <FaMagic className="me-1" />Generate Summary
@@ -74,17 +74,17 @@ export default function CourseDetailsPage() {
         </Card.Body>
       </Card>
 
-      <Tabs defaultActiveKey="summaries" className="mb-3">
+      <Tabs defaultActiveKey="summaries" variant="pills" className="ss-tabs mb-4">
         <Tab eventKey="summaries" title={`Résumés (${summaries.items.length})`}>
           {summaries.loading ? <Loader />
-            : summaries.items.length === 0 ? <div className="text-muted py-3">Aucun résumé généré pour ce cours.</div>
+            : summaries.items.length === 0 ? <div className="empty-inline">Aucun résumé généré pour ce cours.</div>
             : summaries.items.map((s) => <SummaryCard key={s._id} summary={s} />)}
         </Tab>
         <Tab eventKey="quizzes" title={`Quiz (${quizzes.items.length})`}>
           {quizzes.items.length === 0 ? (
-            <div className="text-muted py-3">Aucun quiz généré pour ce cours.</div>
+            <div className="empty-inline">Aucun quiz généré pour ce cours.</div>
           ) : (
-            <ListGroup>
+            <ListGroup className="quiz-list">
               {quizzes.items.map((q) => (
                 <ListGroup.Item key={q._id} className="d-flex justify-content-between align-items-center">
                   <span>
@@ -101,7 +101,7 @@ export default function CourseDetailsPage() {
             <Card.Header className="bg-white text-muted small">
               Ajouté le {formatDate(course.createdAt)} · Modifié le {formatDate(course.updatedAt)}
             </Card.Header>
-            <Card.Body style={{ whiteSpace: 'pre-wrap' }}>{course.content}</Card.Body>
+            <Card.Body className="course-content p-4" style={{ whiteSpace: 'pre-wrap' }}>{course.content}</Card.Body>
           </Card>
         </Tab>
       </Tabs>
