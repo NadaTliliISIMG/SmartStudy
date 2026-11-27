@@ -20,10 +20,11 @@ export const deleteCourse = thunk('courses/delete', async (id) => {
   await api.delete(`/courses/${id}`);
   return id;
 });
+export const fetchStats = thunk('courses/stats', async () => (await api.get('/dashboard/stats')).data);
 
 const coursesSlice = createSlice({
   name: 'courses',
-  initialState: { items: [], current: null, loading: false, error: null },
+  initialState: { items: [], current: null, stats: null, loading: false, error: null },
   reducers: {
     clearCourseError: (s) => { s.error = null; },
   },
@@ -40,6 +41,7 @@ const coursesSlice = createSlice({
       .addCase(deleteCourse.fulfilled, (s, { payload }) => {
         s.items = s.items.filter((c) => c._id !== payload);
       })
+      .addCase(fetchStats.fulfilled, (s, { payload }) => { s.stats = payload; })
       // Shared loading / error handling for every courses/* action
       .addMatcher((a) => a.type.startsWith('courses/') && a.type.endsWith('/pending'), (s) => {
         s.loading = true;
