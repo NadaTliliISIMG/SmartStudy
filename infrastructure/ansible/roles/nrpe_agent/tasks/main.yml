@@ -1,0 +1,50 @@
+# NRPE lets Nagios (monitor-vm) run checks locally on this VM.
+- name: Install the NRPE agent and the standard Nagios plugins
+  ansible.builtin.apt:
+    name:
+      - nagios-nrpe-server
+      - monitoring-plugins-basic
+      - monitoring-plugins-standard
+    state: present
+
+- name: Allow monitor-vm to query this agent
+  ansible.builtin.lineinfile:
+    path: /etc/nagios/nrpe.cfg
+    regexp: '^allowed_hosts='
+    line: 'allowed_hosts=127.0.0.1,::1,192.168.56.12'
+  notify: Restart NRPE
+
+- name: Install our custom check scripts
+  ansible.builtin.copy:
+    src: "/vagrant/monitoring/nagios/plugins/{{ item }}"
+    dest: "/usr/lib/nagios/plugins/{{ item }}"
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - check_mem
+    - check_docker_health
+
+- name: Install the NRPE command definitions
+  ansible.builtin.copy:
+    src: /vagrant/monitoring/nagios/nrpe/smartstudy.cfg
+    dest: /etc/nagios/nrpe.d/smartstudy.cfg
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Restart NRPE
+
+- name: Allow the nagios user to read Docker container health
+  ansible.builtin.user:
+    name: nagios
+    groups: docker
+    append: true
+  notify: Restart NRPE
+
+- name: Start NRPE now and at every boot
+  ansible.builtin.service:
+    name: nagios-nrpe-server
+    state: started
+    enabled: true

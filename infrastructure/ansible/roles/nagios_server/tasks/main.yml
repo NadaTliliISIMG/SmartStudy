@@ -1,0 +1,46 @@
+- name: Install Nagios, the NRPE client plugin and Apache
+  ansible.builtin.apt:
+    name:
+      - nagios4
+      - nagios-nrpe-plugin
+      - monitoring-plugins-basic
+      - monitoring-plugins-standard
+      - apache2
+    state: present
+
+- name: Install our host and service definitions
+  ansible.builtin.copy:
+    src: "/vagrant/monitoring/nagios/conf.d/{{ item }}"
+    dest: "/etc/nagios4/conf.d/{{ item }}"
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"
+  loop:
+    - commands.cfg
+    - hosts.cfg
+    - services.cfg
+  notify: Restart Nagios
+
+- name: Check the Nagios configuration before restarting
+  ansible.builtin.command: nagios4 -v /etc/nagios4/nagios.cfg
+  changed_when: false
+
+- name: Enable the Apache modules and the Nagios web interface
+  ansible.builtin.command: "{{ item }}"
+  loop:
+    - a2enmod cgi
+    - a2enmod auth_digest
+    - a2enmod authz_groupfile
+    - a2enconf nagios4-cgi
+  changed_when: false
+  notify: Restart Apache
+
+- name: Start Nagios and Apache now and at every boot
+  ansible.builtin.service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop:
+    - nagios4
+    - apache2

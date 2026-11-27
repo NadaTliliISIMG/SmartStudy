@@ -1,0 +1,7 @@
+# monitor-vm: Nagios
+- name: Configure the monitoring server
+  hosts: all
+  become: true
+  roles:
+    - common
+    - nagios_server
