@@ -3,7 +3,7 @@ name: smart-study
 services:
   # ---------- Container 3: database ----------
   mongo:
-    image: mongo:7
+    image: ${MONGO_IMAGE:-mongo:4.4}   # 4.4 does not need the AVX CPU instructions
     container_name: smartstudy-mongo
     restart: unless-stopped
     volumes:
@@ -12,11 +12,12 @@ services:
       - smartstudy-net
     # No "ports": MongoDB is reachable only from the other containers
     healthcheck:
-      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
+      # "mongosh" exists in MongoDB 5+, "mongo" in 4.4: this test works with both images
+      test: ["CMD-SHELL", "mongosh --quiet --eval 'quit(db.adminCommand({ping:1}).ok ? 0 : 1)' || mongo --quiet --eval 'quit(db.adminCommand({ping:1}).ok ? 0 : 1)'"]
+      interval: 15s
+      timeout: 20s
+      retries: 10
+      start_period: 60s
       
   # ---------- Container 4: AI service ----------
   ai-service:
