@@ -11,8 +11,9 @@ app.use(cors({ origin: corsOrigin }));
 app.use(express.json({ limit: '2mb' }));
 if (process.env.NODE_ENV !== 'test') app.use(morgan('dev'));
 
-app.use('/api/health', healthRoutes);
+app.use('/api/health', require('./routes/health.routes'));
 app.use('/api/auth', require('./routes/auth.routes'));
+app.use('/api/dashboard', require('./routes/dashboard.routes'));
 app.use('/api/courses', require('./routes/course.routes'));
 app.use('/api/summaries', require('./routes/summary.routes'));
 app.use('/api/quizzes', require('./routes/quiz.routes'));
