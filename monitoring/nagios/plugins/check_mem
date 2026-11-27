@@ -1,0 +1,28 @@
+#!/bin/bash
+# Nagios plugin: memory usage in percent (cache is NOT counted as used).
+# Usage: check_mem -w <warning %> -c <critical %>
+WARN=80
+CRIT=90
+while getopts "w:c:" opt; do
+  case $opt in
+    w) WARN=$OPTARG ;;
+    c) CRIT=$OPTARG ;;
+    *) echo "UNKNOWN - usage: $0 -w <warn%> -c <crit%>"; exit 3 ;;
+  esac
+done
+
+read -r TOTAL AVAILABLE < <(free -m | awk '/^Mem:/ {print $2, $7}')
+if [ -z "$TOTAL" ] || [ "$TOTAL" -eq 0 ]; then
+  echo "UNKNOWN - cannot read memory information"
+  exit 3
+fi
+
+USED=$((TOTAL - AVAILABLE))
+PCT=$((USED * 100 / TOTAL))
+MSG="memory used ${PCT}% (${USED} MB of ${TOTAL} MB)"
+PERF="mem_used=${PCT}%;${WARN};${CRIT};0;100"
+
+if [ "$PCT" -ge "$CRIT" ]; then echo "CRITICAL - $MSG | $PERF"; exit 2; fi
+if [ "$PCT" -ge "$WARN" ]; then echo "WARNING - $MSG | $PERF"; exit 1; fi
+echo "OK - $MSG | $PERF"
+exit 0

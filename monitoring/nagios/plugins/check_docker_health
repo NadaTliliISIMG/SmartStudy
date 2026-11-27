@@ -1,0 +1,21 @@
+#!/bin/bash
+# Nagios plugin: state of a Docker container, using its HEALTHCHECK when it has one.
+# Usage: check_docker_health <container name>
+NAME="$1"
+if [ -z "$NAME" ]; then
+  echo "UNKNOWN - usage: $0 <container name>"
+  exit 3
+fi
+if ! command -v docker >/dev/null 2>&1; then
+  echo "UNKNOWN - docker is not installed"
+  exit 3
+fi
+
+STATUS=$(docker inspect -f '{{if .State.Running}}{{if .State.Health}}{{.State.Health.Status}}{{else}}running{{end}}{{else}}stopped{{end}}' "$NAME" 2>/dev/null)
+
+case "$STATUS" in
+  healthy|running) echo "OK - container $NAME is $STATUS"; exit 0 ;;
+  starting)        echo "WARNING - container $NAME is starting"; exit 1 ;;
+  "")              echo "CRITICAL - container $NAME not found"; exit 2 ;;
+  *)               echo "CRITICAL - container $NAME is $STATUS"; exit 2 ;;
+esac
