@@ -1,0 +1,11 @@
+# Force Unix line endings (LF) for everything that runs on Linux.
+# Without this, Git on Windows converts files to CRLF and scripts fail inside the VMs.
+* text=auto eol=lf
+*.sh text eol=lf
+*.yml text eol=lf
+*.cfg text eol=lf
+Jenkinsfile text eol=lf
+Vagrantfile text eol=lf
+monitoring/nagios/plugins/* text eol=lf
+*.png binary
+*.jpg binary
