@@ -3,7 +3,7 @@ import axios from 'axios';
 // Single Axios instance: the frontend only talks to the backend, never to MongoDB or the AI service.
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  timeout: 130000, // AI generation can be slow
+  timeout: 400000, // AI generation can be slow
 });
 
 // Attach the JWT to every request
