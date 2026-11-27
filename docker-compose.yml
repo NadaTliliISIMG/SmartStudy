@@ -1,0 +1,84 @@
+name: smart-study
+
+services:
+  # ---------- Container 3: database ----------
+  mongo:
+    image: mongo:7
+    container_name: smartstudy-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db          # persistent data
+    networks:
+      - smartstudy-net
+    # No "ports": MongoDB is reachable only from the other containers
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+      
+  # ---------- Container 4: AI service ----------
+  ai-service:
+    build: ./ai-service
+    container_name: smartstudy-ai
+    restart: unless-stopped
+    environment:
+      # Ollama runs on the host machine, outside Docker
+      OLLAMA_BASE_URL: ${DOCKER_OLLAMA_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:7b-instruct}
+      OLLAMA_TIMEOUT: ${OLLAMA_TIMEOUT:-120}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"   # needed on Linux / VM
+    ports:
+      - "127.0.0.1:8000:8000"        # reachable from the host only (tests, monitoring)
+    networks:
+      - smartstudy-net
+
+  # ---------- Container 2: backend ----------
+  backend:
+    build: ./backend
+    container_name: smartstudy-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      BACKEND_PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/smartstudy      # "mongo" = service name (Docker DNS)
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be defined in the .env file}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      AI_SERVICE_URL: http://ai-service:8000           # "ai-service" = service name (Docker DNS)
+      AI_TIMEOUT_MS: ${AI_TIMEOUT_MS:-120000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+    depends_on:
+      mongo:
+        condition: service_healthy
+      ai-service:
+        condition: service_started
+    ports:
+      - "127.0.0.1:5000:5000"        # reachable from the host only (tests, monitoring)
+    networks:
+      - smartstudy-net
+
+  # ---------- Container 1: frontend ----------
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api           # nginx forwards /api to the backend
+    container_name: smartstudy-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3000:80"                    # the only port open to the network
+    networks:
+      - smartstudy-net
+      
+
+networks:
+  smartstudy-net:
+    driver: bridge
+
+volumes:
+  mongo_data:
