@@ -1,0 +1,31 @@
+- name: Create the deployment directory
+  ansible.builtin.file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: "0755"
+
+# The .env file holds the secrets of the deployed application.
+# It lives only on app-vm and is never committed to Git.
+- name: Create the .env file (only if it does not exist yet)
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ app_dir }}/.env"
+    owner: vagrant
+    group: vagrant
+    mode: "0600"
+    force: false
+  become: false
+
+- name: Look for the Jenkins deploy key published by ci-vm
+  ansible.builtin.stat:
+    path: /vagrant/.keys/jenkins_deploy.pub
+  register: jenkins_key
+
+- name: Authorize Jenkins to deploy over SSH
+  ansible.posix.authorized_key:
+    user: vagrant
+    key: "{{ lookup('file', '/vagrant/.keys/jenkins_deploy.pub') }}"
+    state: present
+  when: jenkins_key.stat.exists

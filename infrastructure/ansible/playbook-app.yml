@@ -1,0 +1,11 @@
+# app-vm: Docker + Smart Study deployment target
+- name: Configure the application server
+  hosts: all
+  become: true
+  roles:
+    - common
+    - role: docker
+      vars:
+        docker_users: [vagrant]
+    - app
+    - nrpe_agent

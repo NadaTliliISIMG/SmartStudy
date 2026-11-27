@@ -1,0 +1,11 @@
+# ci-vm: Jenkins + Docker (builds and tests run in Docker containers)
+- name: Configure the CI server
+  hosts: all
+  become: true
+  roles:
+    - common
+    - role: docker
+      vars:
+        docker_users: [vagrant]
+    - jenkins
+    - nrpe_agent 

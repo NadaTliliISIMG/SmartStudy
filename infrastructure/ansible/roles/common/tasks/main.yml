@@ -1,0 +1,32 @@
+- name: Update the apt cache
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Install base packages
+  ansible.builtin.apt:
+    name:
+      - curl
+      - git
+      - rsync
+      - unzip
+      - ca-certificates
+      - gnupg
+      - htop
+      - net-tools
+      - python3-debian
+      - vim
+    state: present
+
+- name: Set the time zone
+  community.general.timezone:
+    name: Africa/Tunis
+
+- name: Make the 3 VMs reachable by name
+  ansible.builtin.blockinfile:
+    path: /etc/hosts
+    marker: "# {mark} SMART STUDY VMS"
+    block: |
+      192.168.56.10 app-vm
+      192.168.56.11 ci-vm
+      192.168.56.12 monitor-vm

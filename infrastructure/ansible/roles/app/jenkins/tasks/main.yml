@@ -1,0 +1,98 @@
+- name: Install Java and tools needed by Jenkins
+  ansible.builtin.apt:
+    name:
+      - fontconfig
+      - openjdk-21-jre
+      - rsync
+      - openssh-client
+    state: present
+
+- name: Create the apt keyrings directory
+  ansible.builtin.file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: "0755"
+
+- name: Download the Jenkins repository signing key (2026)
+  ansible.builtin.get_url:
+    url: https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+    dest: /etc/apt/keyrings/jenkins-keyring.asc
+    mode: "0644"
+
+- name: Add the Jenkins LTS apt repository
+  ansible.builtin.deb822_repository:
+    name: jenkins
+    types: deb
+    uris: https://pkg.jenkins.io/debian-stable
+    suites: binary/
+    signed_by: /etc/apt/keyrings/jenkins-keyring.asc
+    state: present
+
+- name: Install Jenkins
+  ansible.builtin.apt:
+    name: jenkins
+    state: present
+    update_cache: true
+
+- name: Let the jenkins user run docker
+  ansible.builtin.user:
+    name: jenkins
+    groups: docker
+    append: true
+  register: jenkins_docker_group
+
+- name: Restart Jenkins so the docker group is taken into account
+  ansible.builtin.service:
+    name: jenkins
+    state: restarted
+  when: jenkins_docker_group.changed
+
+- name: Start Jenkins now and at every boot
+  ansible.builtin.service:
+    name: jenkins
+    state: started
+    enabled: true
+
+# SSH key used by the pipeline to deploy on app-vm
+- name: Create the .ssh directory of the jenkins user
+  ansible.builtin.file:
+    path: /var/lib/jenkins/.ssh
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: "0700"
+
+- name: Generate the deploy key pair (only once)
+  ansible.builtin.command:
+    cmd: ssh-keygen -t ed25519 -N "" -C jenkins-deploy -f /var/lib/jenkins/.ssh/id_ed25519
+    creates: /var/lib/jenkins/.ssh/id_ed25519
+
+- name: Give the key pair to the jenkins user
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: jenkins
+    group: jenkins
+    mode: "{{ item.mode }}"
+  loop:
+    - { path: /var/lib/jenkins/.ssh/id_ed25519, mode: "0600" }
+    - { path: /var/lib/jenkins/.ssh/id_ed25519.pub, mode: "0644" }
+
+- name: Create the shared keys directory (ignored by Git)
+  ansible.builtin.file:
+    path: /vagrant/.keys
+    state: directory
+    mode: "0755"
+
+# Only the PUBLIC key is shared with the other VMs. The private key never leaves ci-vm.
+- name: Publish the public key for app-vm
+  ansible.builtin.copy:
+    src: /var/lib/jenkins/.ssh/id_ed25519.pub
+    dest: /vagrant/.keys/jenkins_deploy.pub
+    remote_src: true
+    mode: "0644"
+
+- name: Wait until Jenkins answers on port 8080
+  ansible.builtin.wait_for:
+    port: 8080
+    delay: 5
+    timeout: 300

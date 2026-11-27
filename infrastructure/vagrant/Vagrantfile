@@ -1,0 +1,61 @@
+# -*- mode: ruby -*-
+# Smart Study: 3 virtual machines on a private network (VirtualBox).
+#
+#   ci-vm      192.168.56.11  Jenkins (CI/CD)
+#   app-vm     192.168.56.10  Docker + Smart Study application (4 containers)
+#   monitor-vm 192.168.56.12  Nagios (monitoring)
+#
+# Commands (run them in this folder):
+#   vagrant up              create and configure the 3 VMs (first time: 15-30 min)
+#   vagrant up app-vm       create only one VM
+#   vagrant provision app-vm  re-run Ansible on one VM
+#   vagrant ssh app-vm      open a shell in a VM
+#   vagrant halt            stop the VMs (data kept)
+#   vagrant destroy -f      delete the VMs
+
+# Light mode for PCs with 16 GB of RAM or less:  set SMARTSTUDY_LIGHT=1
+LIGHT = ENV["SMARTSTUDY_LIGHT"] == "1"
+
+# The order matters: ci-vm first, because it generates the SSH key that app-vm authorizes.
+VMS = {
+  "ci-vm"      => { ip: "192.168.56.11", memory: LIGHT ? 2048 : 3072, cpus: 2, playbook: "playbook-ci.yml" },
+  "app-vm"     => { ip: "192.168.56.10", memory: LIGHT ? 3072 : 4096, cpus: 2, playbook: "playbook-app.yml" },
+  "monitor-vm" => { ip: "192.168.56.12", memory: LIGHT ? 768 : 1024,  cpus: 1, playbook: "playbook-monitor.yml" },
+}
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "bento/ubuntu-24.04"
+  config.vm.boot_timeout = 600
+
+  # The whole repository is shared with every VM under /vagrant
+  # (Ansible playbooks, Nagios configuration, application code).
+  config.vm.synced_folder "../..", "/vagrant", mount_options: ["dmode=755", "fmode=644"]
+
+  VMS.each do |name, vm|
+    config.vm.define name do |node|
+      node.vm.hostname = name
+      node.vm.network "private_network", ip: vm[:ip]
+
+      node.vm.provider "virtualbox" do |vb|
+        vb.name   = "smartstudy-#{name}"
+        vb.memory = vm[:memory]
+        vb.cpus   = vm[:cpus]
+      end
+
+      # Step 1: install Ansible inside the VM (from Ubuntu packages)
+      node.vm.provision "shell", inline: <<~SHELL
+        export DEBIAN_FRONTEND=noninteractive
+        apt-get update -qq
+        apt-get install -y -qq ansible
+      SHELL
+
+      # Step 2: run the playbook of this VM, locally, inside the VM
+      node.vm.provision "ansible_local" do |ansible|
+        ansible.install           = false
+        ansible.provisioning_path = "/vagrant/infrastructure/ansible"
+        ansible.playbook          = vm[:playbook]
+        ansible.compatibility_mode = "2.0"
+      end
+    end
+  end
+end

@@ -1,0 +1,5 @@
+app_dir: /opt/smart-study
+app_ip: 192.168.56.10
+ollama_model: qwen2.5:7b-instruct
+# Ollama runs on the Windows host. 192.168.56.1 is the host's address on the VirtualBox private network.
+docker_ollama_url: http://192.168.56.1:11434
